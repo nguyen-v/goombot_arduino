@@ -3,9 +3,10 @@
 
 #include "Arduino.h"
 #include "MotorController.h"
+#include <math.h>
 
 // Wheel default parameters
-#define DEF_WHEEL_DIAMETER 120 // mm
+#define DEF_WHEEL_DIAMETER 0.12f // m
 
 class Wheel {
   public:
@@ -19,6 +20,8 @@ class Wheel {
     ~Wheel();
     
     void set_speed(float speed); // m/s
+
+    float get_diameter() const;
     
   private:
     float diameter;

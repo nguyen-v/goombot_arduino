@@ -20,11 +20,13 @@ class MotorController {
 
     MotorController(uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
-                    uint8_t output_pin_) : 
+                    uint8_t output_pin_,
+                    uint8_t analog_pin_) : 
       reduction_ratio(DEF_RED_RATIO), 
       enable_pin(enable_pin_), 
       direction_pin(direction_pin_), 
       output_pin(output_pin_),
+      analog_pin(analog_pin_),
       rpm_min(RPM_MIN),
       rpm_max(RPM_MAX),
       pwm_min(PWM_MIN),
@@ -38,11 +40,13 @@ class MotorController {
     MotorController(uint16_t reduction_ratio_, 
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
-                    uint8_t output_pin_) :
+                    uint8_t output_pin_
+                    uint8_t analog_pin_) :
       reduction_ratio(reduction_ratio_), 
       enable_pin(enable_pin_), 
       direction_pin(direction_pin_), 
       output_pin(output_pin_),
+      analog_pin(analog_pin_),
       rpm_min(RPM_MIN),
       rpm_max(RPM_MAX),
       pwm_min(PWM_MIN),
@@ -57,6 +61,7 @@ class MotorController {
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
+                    uint8_t analog_pin_,
                     uint16_t rpm_min_,
                     uint16_t rpm_max_,
                     uint8_t pwm_min_,
@@ -65,6 +70,7 @@ class MotorController {
       enable_pin(enable_pin_), 
       direction_pin(direction_pin_), 
       output_pin(output_pin_),
+      analog_pin(analog_pin_),
       rpm_min(rpm_min_),
       rpm_max(rpm_max_),
       pwm_min(pwm_min_),
@@ -96,6 +102,7 @@ class MotorController {
     void disable_controller();
     void set_direction(bool direction);
     void set_rpm(uint16_t rpm, bool direction=CW);
+    float get_rpm(int analog_pin, uint16_t rpm_min, uint16_t rpm_max, float Vmin, float Vmax);
 };
 
 
