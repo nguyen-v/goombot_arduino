@@ -5,24 +5,28 @@
 #include "MotorController.h"
 
 // Wheel default parameters
-#define DEF_WHEEL_DIAMETER 120 // mm
+#define DEF_WHEEL_DIAMETER 0.12f // m
+
+#define SPEED_LOW_THRESHOLD 0.005f //m/s
 
 class Wheel {
   public:
 
-    Wheel(MotorController controller_) :
-      diameter(DEF_WHEEL_DIAMETER), controller(controller_) {}
+    Wheel(MotorController& controller_);
+
+    Wheel(MotorController& controller_, bool reversed_);
     
-    Wheel(float diameter_, MotorController controller_) : 
-      diameter(diameter_), controller(controller_) {}
+    Wheel(float diameter_, MotorController& controller_, bool reversed_);
 
     ~Wheel();
     
+    MotorController& controller;
     void set_speed(float speed); // m/s
+    float get_speed(); // m/s
     
   private:
     float diameter;
-    MotorController controller;
+    bool reversed;
     
 };
 
