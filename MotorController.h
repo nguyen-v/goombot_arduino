@@ -16,7 +16,7 @@
 
 #define ANALOG_OUTPUT_MIN 0 // V
 #define ANALOG_OUTPUT_MAX 4.f // V
-#define RPM_OFFSET 95;
+#define RPM_OFFSET 140;
 
 // Arduino specific configuration
 #define MCU_VOLTAGE 5 // V (arduino uses 5V)

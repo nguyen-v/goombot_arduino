@@ -1,4 +1,4 @@
-
+ 
 // ROS includes
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
@@ -14,9 +14,10 @@
 // Create ROS node handle
 ros::NodeHandle nh;
 
+
 // Create a motor controller instance
 MotorController left_motor(31, 32, 2, A0);
-MotorController right_motor(33, 34, 3, 1);
+MotorController right_motor(33, 34, 3, A1);
 
 // Create wheel instances
 Wheel left_wheel(left_motor);
@@ -67,7 +68,7 @@ void setup() {
   // reset controllers
   goombot.wheel_left.controller.reset_controller();
   goombot.wheel_right.controller.reset_controller();
-  
+  nh.getHardware()->setBaud(921600);
   nh.initNode();
   nh.subscribe(cmd_vel_sub);
   nh.subscribe(reset_controller_sub);
@@ -83,6 +84,6 @@ void loop() {
   right_wheel_vel.data = goombot.wheel_right.get_speed();
   left_wheel_vel_pub.publish(&left_wheel_vel);
   right_wheel_vel_pub.publish(&right_wheel_vel);
-  
+  delay(5);
   nh.spinOnce();
 }
