@@ -1,3 +1,4 @@
+
  
 // ROS includes
 #include <ros.h>
@@ -16,8 +17,8 @@ ros::NodeHandle nh;
 
 
 // Create a motor controller instance
-MotorController left_motor(31, 32, 2, A0);
-MotorController right_motor(33, 34, 3, A1);
+MotorController left_motor(40, 42, 3, A0);
+MotorController right_motor(35, 33, 2, A15);
 
 // Create wheel instances
 Wheel left_wheel(left_motor);

@@ -24,6 +24,10 @@ MotorController::MotorController(
                     analog_output_min(analog_output_min_),
                     analog_output_max(analog_output_max_) 
   {
+    pinMode(enable_pin_, OUTPUT);
+    pinMode(direction_pin_, OUTPUT);
+    pinMode(output_pin_, OUTPUT);
+    pinMode(analog_pin_, INPUT);
     set_rpm(0);
     set_direction(CW);
   }
