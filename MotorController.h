@@ -16,7 +16,7 @@
 
 #define ANALOG_OUTPUT_MIN 0 // V
 #define ANALOG_OUTPUT_MAX 4.f // V
-#define RPM_OFFSET 140;
+#define RPM_OFFSET 763;
 
 // Arduino specific configuration
 #define MCU_VOLTAGE 5 // V (arduino uses 5V)
@@ -30,32 +30,36 @@ class MotorController {
     MotorController(uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
-                    uint8_t analog_pin_);
+                    uint8_t analog_pin_,
+                    uint8_t commutation_pin_);
 
       
     MotorController(uint16_t reduction_ratio_, 
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
-                    uint8_t analog_pin_);
+                    uint8_t analog_pin_,
+                    uint8_t commutation_pin_);
 
     MotorController(uint16_t reduction_ratio_, 
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_,
                     uint8_t output_pin_,
                     uint8_t analog_pin_, 
+                    uint8_t commutation_pin_,
                     uint16_t rpm_min_,
                     uint16_t rpm_max_,
                     uint8_t pwm_min_,
                     uint8_t pwm_max_,
                     float analog_output_min_,
                     float analog_output_max_);
-      
+                    
     ~MotorController();
     
     void set_rpm_shaft(float rpm);
     float get_rpm_shaft();
     void reset_controller();
+//    int get_ticks();
     
   private:
     uint16_t reduction_ratio;
@@ -63,6 +67,7 @@ class MotorController {
     uint8_t direction_pin;
     uint8_t output_pin;
     uint8_t analog_pin;
+    uint8_t commutation_pin;
 
     uint16_t rpm_min;
     uint16_t rpm_max;
@@ -72,6 +77,8 @@ class MotorController {
 
     float analog_output_min;
     float analog_output_max;
+
+//    volatile int tick;
     
     bool direction;
 
@@ -80,6 +87,7 @@ class MotorController {
     void set_direction(bool direction_);
     void set_rpm(uint16_t rpm, bool direction_=CW);
     int get_rpm();
+//    void increment_tick();
 };
 
 

@@ -4,6 +4,7 @@
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Int16.h>
 #include <std_msgs/String.h>
 
 // Custom headers
@@ -17,8 +18,8 @@ ros::NodeHandle nh;
 
 
 // Create a motor controller instance
-MotorController left_motor(40, 42, 3, A0);
-MotorController right_motor(35, 33, 2, A15);
+MotorController left_motor(40, 42, 3, A0, 20);
+MotorController right_motor(35, 33, 2, A15, 21);
 
 // Create wheel instances
 Wheel left_wheel(left_motor);
@@ -63,8 +64,22 @@ ros::Publisher left_wheel_vel_pub("left_wheel_vel", &left_wheel_vel);
 std_msgs::Float32 right_wheel_vel;
 ros::Publisher right_wheel_vel_pub("right_wheel_vel", &right_wheel_vel);
 
+std_msgs::Int16 left_ticks;
+ros::Publisher left_wheel_tick_pub("left_ticks", &left_ticks);
+
+std_msgs::Int16 right_ticks;
+ros::Publisher right_wheel_tick_pub("right_ticks", &right_ticks);
+
+const int interval = 100;
+long previousMillis = 0;
+long currentMillis = 0;
+const int encoder_minimum = -32768;
+const int encoder_maximum = 32767;
 
 void setup() {
+
+  attachInterrupt(digitalPinToInterrupt(20), increment_tick_left, RISING);
+  attachInterrupt(digitalPinToInterrupt(21), increment_tick_right, RISING);
   
   // reset controllers
   goombot.wheel_left.controller.reset_controller();
@@ -77,14 +92,87 @@ void setup() {
   nh.advertise(left_wheel_vel_pub);
   nh.advertise(right_wheel_vel_pub);
 
+  nh.advertise(left_wheel_tick_pub);
+  nh.advertise(right_wheel_tick_pub);
+
 }
 
 void loop() {
-  // Read and publish wheel speed
-  left_wheel_vel.data = goombot.wheel_left.get_speed();
-  right_wheel_vel.data = goombot.wheel_right.get_speed();
-  left_wheel_vel_pub.publish(&left_wheel_vel);
-  right_wheel_vel_pub.publish(&right_wheel_vel);
+//  // Read and publish wheel speed
+//  left_wheel_vel.data = goombot.wheel_left.get_speed();
+//  right_wheel_vel.data = goombot.wheel_right.get_speed();
+//  left_wheel_vel_pub.publish(&left_wheel_vel);
+//  right_wheel_vel_pub.publish(&right_wheel_vel);
+
+//  // Read and publish tick
+//  left_ticks.data = goombot.wheel_left.get_ticks();
+//  right_ticks.data = goombot.wheel_right.get_ticks();
+
+
+  currentMillis = millis();
+ 
+  // If 100ms have passed, print the number of ticks
+  if (currentMillis - previousMillis > interval) {
+     
+    previousMillis = currentMillis;
+     
+    left_wheel_tick_pub.publish(&left_ticks);
+    right_wheel_tick_pub.publish(&right_ticks);
+    left_wheel_vel.data = goombot.wheel_left.get_speed_avg(50);
+    right_wheel_vel.data = goombot.wheel_right.get_speed_avg(50);
+    left_wheel_vel_pub.publish(&left_wheel_vel);
+    right_wheel_vel_pub.publish(&right_wheel_vel);
+  }
+  
   delay(5);
   nh.spinOnce();
+}
+
+void increment_tick_left() {
+   
+  // Read the value for the encoder for the right wheel
+  bool direction_left = goombot.wheel_left.get_speed() > 0 ? true : false;
+
+   
+  if (direction_left) {
+     
+    if (left_ticks.data == encoder_maximum) {
+      left_ticks.data = encoder_minimum;
+    }
+    else {
+      left_ticks.data++;  
+    }    
+  }
+  else {
+    if (left_ticks.data == encoder_minimum) {
+      left_ticks.data = encoder_maximum;
+    }
+    else {
+      left_ticks.data--;  
+    }   
+  }
+}
+
+void increment_tick_right() {
+   
+  // Read the value for the encoder for the right wheel
+  bool direction_right = goombot.wheel_right.get_speed() > 0 ? true : false;
+   
+  if (direction_right) {
+     
+    if (right_ticks.data == encoder_maximum) {
+      right_ticks.data = encoder_minimum;
+    }
+    else {
+      right_ticks.data++;  
+    }    
+  }
+  else {
+    if (right_ticks.data == encoder_minimum) {
+      right_ticks.data = encoder_maximum;
+    }
+    else {
+      right_ticks.data--;  
+    }   
+  }
 }

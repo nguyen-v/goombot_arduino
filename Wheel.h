@@ -23,6 +23,8 @@ class Wheel {
     MotorController& controller;
     void set_speed(float speed); // m/s
     float get_speed(); // m/s
+    float get_speed_avg(uint8_t num_samples);
+//    int get_ticks();
     
   private:
     float diameter;

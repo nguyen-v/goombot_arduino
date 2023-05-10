@@ -24,3 +24,16 @@ float Wheel::get_speed() {
   float speed_ = reversed ? -speed : speed; 
   return (abs(speed_) < SPEED_LOW_THRESHOLD ? 0. : speed_);
 }
+
+float Wheel::get_speed_avg(uint8_t num_samples) {
+  float speed_avg = 0;
+  for (uint8_t i = 0; i < num_samples; ++i) {
+    speed_avg += get_speed();
+  }
+  speed_avg /= num_samples;
+  return speed_avg;
+}
+
+//int Wheel::get_ticks() {
+//  return reversed? -controller.get_ticks() : controller.get_ticks();
+//}

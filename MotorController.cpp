@@ -6,6 +6,7 @@ MotorController::MotorController(
                     uint8_t direction_pin_,
                     uint8_t output_pin_,
                     uint8_t analog_pin_, 
+                    uint8_t commutation_pin_,
                     uint16_t rpm_min_,
                     uint16_t rpm_max_,
                     uint8_t pwm_min_,
@@ -17,17 +18,20 @@ MotorController::MotorController(
                     direction_pin(direction_pin_),
                     output_pin(output_pin_),
                     analog_pin(analog_pin_),
+                    commutation_pin(commutation_pin_),
                     rpm_min(rpm_min_),
                     rpm_max(rpm_max_),
                     pwm_min(pwm_min_),
                     pwm_max(pwm_max_),
                     analog_output_min(analog_output_min_),
-                    analog_output_max(analog_output_max_) 
+                    analog_output_max(analog_output_max_)
+//                    tick(0) 
   {
     pinMode(enable_pin_, OUTPUT);
     pinMode(direction_pin_, OUTPUT);
     pinMode(output_pin_, OUTPUT);
     pinMode(analog_pin_, INPUT);
+    pinMode(commutation_pin_, INPUT_PULLUP);
     set_rpm(0);
     set_direction(CW);
   }
@@ -37,13 +41,15 @@ MotorController::MotorController(
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
-                    uint8_t analog_pin_) :
+                    uint8_t analog_pin_,
+                    uint8_t commutation_pin_) :
                     MotorController(
                       reduction_ratio_,
                       enable_pin_,
                       direction_pin_,
                       output_pin_,
                       analog_pin_,
+                      commutation_pin_,
                       RPM_MIN,
                       RPM_MAX,
                       PWM_MIN,
@@ -56,13 +62,15 @@ MotorController::MotorController(
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
-                    uint8_t analog_pin_) :
+                    uint8_t analog_pin_,
+                    uint8_t commutation_pin_) :
                     MotorController(
                       DEF_RED_RATIO,
                       enable_pin_,
                       direction_pin_,
                       output_pin_,
-                      analog_pin_) {}
+                      analog_pin_,
+                      commutation_pin_) {}
 
 MotorController::~MotorController() {
   set_rpm(0);
@@ -120,3 +128,14 @@ void MotorController::set_rpm_shaft(float rpm) {
 float MotorController::get_rpm_shaft() {
   return (float)get_rpm()/reduction_ratio;
 }
+//
+//int MotorController::get_tick() {
+//  return tick;
+//}
+
+//void MotorController::increment_tick() {
+//  bool direction = get_rpm_shaft() > 0 ? CW : CCW;
+//  if (direction == CW) {
+//    tick++;
+//  }
+//}
