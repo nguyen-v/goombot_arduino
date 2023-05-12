@@ -22,7 +22,7 @@ void Wheel::set_speed(float speed) {
 float Wheel::get_speed() {
   float speed = controller.get_rpm_shaft()*(PI*diameter)/60.;
   float speed_ = reversed ? -speed : speed; 
-  return (abs(speed_) < SPEED_LOW_THRESHOLD ? 0. : speed_);
+  return (abs(speed_) < SPEED_LOW_THRESHOLD ? 0. : speed_)*SPEED_CORRECTION_FACTOR;
 }
 
 float Wheel::get_speed_avg(uint8_t num_samples) {

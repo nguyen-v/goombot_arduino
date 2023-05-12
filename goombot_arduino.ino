@@ -31,14 +31,15 @@ Goombot goombot(left_wheel, right_wheel);
 // ROS callbacks
 void set_velocity_callback(const geometry_msgs::Twist& cmd_vel) {
 
-  // Check if the robot has to rotate first
-  if (cmd_vel.angular.z != 0) {
-    goombot.rotate(cmd_vel.angular.z);
-
-  // Go straight
-  } else {
-    goombot.set_speed(cmd_vel.linear.x);
-  }
+//  // Check if the robot has to rotate first
+//  if (cmd_vel.angular.z != 0) {
+//    goombot.rotate(cmd_vel.angular.z);
+//
+//  // Go straight
+//  } else {
+//    goombot.set_speed(cmd_vel.linear.x);
+//  }
+  goombot.set_speed_lin_ang(cmd_vel.linear.x, cmd_vel.angular.z);
 }
 
 void reset_controller_callback(const std_msgs::String& reset_controller){
@@ -70,9 +71,11 @@ ros::Publisher left_wheel_tick_pub("left_ticks", &left_ticks);
 std_msgs::Int16 right_ticks;
 ros::Publisher right_wheel_tick_pub("right_ticks", &right_ticks);
 
-const int interval = 100;
+const int intervalPub = 45;
+const int intervalConv = 40;
 long previousMillis = 0;
 long currentMillis = 0;
+long previousMillisConv = 0;
 const int encoder_minimum = -32768;
 const int encoder_maximum = 32767;
 
@@ -110,21 +113,26 @@ void loop() {
 
 
   currentMillis = millis();
+
+  if (currentMillis - previousMillisConv > intervalConv) {
+     
+    previousMillisConv = currentMillis;
+    left_wheel_vel.data = goombot.wheel_left.get_speed_avg(30);
+    right_wheel_vel.data = goombot.wheel_right.get_speed_avg(30);
+  }    
  
   // If 100ms have passed, print the number of ticks
-  if (currentMillis - previousMillis > interval) {
+  if (currentMillis - previousMillis > intervalPub) {
      
     previousMillis = currentMillis;
      
     left_wheel_tick_pub.publish(&left_ticks);
     right_wheel_tick_pub.publish(&right_ticks);
-    left_wheel_vel.data = goombot.wheel_left.get_speed_avg(50);
-    right_wheel_vel.data = goombot.wheel_right.get_speed_avg(50);
     left_wheel_vel_pub.publish(&left_wheel_vel);
     right_wheel_vel_pub.publish(&right_wheel_vel);
   }
   
-  delay(5);
+//  delay(1);
   nh.spinOnce();
 }
 

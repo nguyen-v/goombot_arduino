@@ -31,3 +31,8 @@ void Goombot::rotate(float angular_speed) {
   float rotation_speed = angular_speed * (wheel_spacing/2);
   set_speed(-rotation_speed, rotation_speed);
 }
+
+void Goombot::set_speed_lin_ang(float lin_speed, float ang_speed) {
+  float rotation_speed = ang_speed * (wheel_spacing/2);
+  set_speed(lin_speed - rotation_speed, lin_speed + rotation_speed);
+}

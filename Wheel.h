@@ -9,6 +9,8 @@
 
 #define SPEED_LOW_THRESHOLD 0.005f //m/s
 
+#define SPEED_CORRECTION_FACTOR 0.877f
+
 class Wheel {
   public:
 

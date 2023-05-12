@@ -14,6 +14,7 @@ class Goombot {
     void set_speed(float speed_left, float speed_right);
     void set_speed(float speed);
     void rotate(float angular_speed);
+    void set_speed_lin_ang(float lin_speed, float ang_speed);
     Wheel& wheel_left;
     Wheel& wheel_right;
 
