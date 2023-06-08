@@ -25,6 +25,7 @@ MotorController::MotorController(
                     pwm_max(pwm_max_),
                     analog_output_min(analog_output_min_),
                     analog_output_max(analog_output_max_)
+//                    rpm_offset(0)
 //                    tick(0) 
   {
     pinMode(enable_pin_, OUTPUT);
@@ -34,6 +35,7 @@ MotorController::MotorController(
     pinMode(commutation_pin_, INPUT_PULLUP);
     set_rpm(0);
     set_direction(CW);
+//    calibrate_offset();
   }
 
 MotorController::MotorController(
@@ -116,10 +118,26 @@ void MotorController::set_rpm(uint16_t rpm, bool direction_) {
     }
 }
 
+//void MotorController::calibrate_offset() {
+//  set_rpm(0);
+////  reset_controller();
+////  delay(1000);
+////  float offset = 0;
+////  for (int i = 0; i < 100; ++i) {
+////    offset += get_rpm();
+////  }
+////  rpm_offset = (int)(offset/100.);
+////  rpm_offset 
+//}
+
 int MotorController::get_rpm() {
   float analog_output = analogRead(analog_pin)/ADC_FULL_SCALE*MCU_VOLTAGE;
-  return (analog_output - analog_output_min)*((float)(2*rpm_max))/(analog_output_max-analog_output_min) - (int)rpm_max - RPM_OFFSET;
+  return (analog_output - analog_output_min)*((float)(2*rpm_max))/(analog_output_max-analog_output_min) - (int)rpm_max;
 }
+
+//int MotorController::get_rpm_calibrated() {
+//  return get_rpm() - rpm_offset;
+//}
 
 void MotorController::set_rpm_shaft(float rpm) {
   set_rpm(abs(rpm)*reduction_ratio, (rpm >= 0) ? CW : CCW);

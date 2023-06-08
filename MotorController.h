@@ -59,6 +59,7 @@ class MotorController {
     void set_rpm_shaft(float rpm);
     float get_rpm_shaft();
     void reset_controller();
+//    void calibrate_offset();
 //    int get_ticks();
     
   private:
@@ -78,6 +79,7 @@ class MotorController {
     float analog_output_min;
     float analog_output_max;
 
+//    int rpm_offset;
 //    volatile int tick;
     
     bool direction;
@@ -86,7 +88,9 @@ class MotorController {
     void disable_controller();
     void set_direction(bool direction_);
     void set_rpm(uint16_t rpm, bool direction_=CW);
+    
     int get_rpm();
+//    int get_rpm_calibrated();
 //    void increment_tick();
 };
 

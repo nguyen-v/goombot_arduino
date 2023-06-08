@@ -18,8 +18,8 @@ ros::NodeHandle nh;
 
 
 // Create a motor controller instance
-MotorController left_motor(40, 42, 3, A0, 20);
-MotorController right_motor(35, 33, 2, A15, 21);
+MotorController left_motor(40, 42, 3, A0, 18);
+MotorController right_motor(35, 33, 2, A15, 19);
 
 // Create wheel instances
 Wheel left_wheel(left_motor);
@@ -30,9 +30,9 @@ Goombot goombot(left_wheel, right_wheel);
 
 // ROS callbacks
 void set_velocity_callback(const geometry_msgs::Twist& cmd_vel) {
-
+//
 //  // Check if the robot has to rotate first
-//  if (cmd_vel.angular.z != 0) {
+//  if (abs(cmd_vel.angular.z) > 0.05) {
 //    goombot.rotate(cmd_vel.angular.z);
 //
 //  // Go straight
@@ -49,6 +49,10 @@ void reset_controller_callback(const std_msgs::String& reset_controller){
   }
   else if (strcmp(controller_name, "right") == 0) {
     goombot.wheel_right.controller.reset_controller();
+  }
+  else if (strcmp(controller_name, "speed") == 0) {
+    goombot.wheel_right.calibrate_speed();
+    goombot.wheel_left.calibrate_speed();
   }
 }
 
@@ -71,8 +75,8 @@ ros::Publisher left_wheel_tick_pub("left_ticks", &left_ticks);
 std_msgs::Int16 right_ticks;
 ros::Publisher right_wheel_tick_pub("right_ticks", &right_ticks);
 
-const int intervalPub = 45;
-const int intervalConv = 40;
+const int intervalPub = 35;
+const int intervalConv = 30;
 long previousMillis = 0;
 long currentMillis = 0;
 long previousMillisConv = 0;
@@ -81,8 +85,8 @@ const int encoder_maximum = 32767;
 
 void setup() {
 
-  attachInterrupt(digitalPinToInterrupt(20), increment_tick_left, RISING);
-  attachInterrupt(digitalPinToInterrupt(21), increment_tick_right, RISING);
+  attachInterrupt(digitalPinToInterrupt(18), increment_tick_left, RISING);
+  attachInterrupt(digitalPinToInterrupt(19), increment_tick_right, RISING);
   
   // reset controllers
   goombot.wheel_left.controller.reset_controller();
@@ -117,9 +121,12 @@ void loop() {
   if (currentMillis - previousMillisConv > intervalConv) {
      
     previousMillisConv = currentMillis;
-    left_wheel_vel.data = goombot.wheel_left.get_speed_avg(30);
-    right_wheel_vel.data = goombot.wheel_right.get_speed_avg(30);
-  }    
+    left_wheel_vel.data = goombot.wheel_left.get_speed_avg_calibrated(15);
+    nh.spinOnce();
+//    left_wheel_vel.data = goombot.get_speed_left();
+    right_wheel_vel.data = goombot.wheel_right.get_speed_avg_calibrated(15);
+    nh.spinOnce();
+  }
  
   // If 100ms have passed, print the number of ticks
   if (currentMillis - previousMillis > intervalPub) {
@@ -130,16 +137,17 @@ void loop() {
     right_wheel_tick_pub.publish(&right_ticks);
     left_wheel_vel_pub.publish(&left_wheel_vel);
     right_wheel_vel_pub.publish(&right_wheel_vel);
+    nh.spinOnce();
   }
   
-//  delay(1);
+  delay(1);
   nh.spinOnce();
 }
 
 void increment_tick_left() {
    
-  // Read the value for the encoder for the right wheel
-  bool direction_left = goombot.wheel_left.get_speed() > 0 ? true : false;
+  // Read the value for the encoder for the left wheel
+  bool direction_left = goombot.wheel_left.get_speed_avg_calibrated(1) > 0 ? true : false;
 
    
   if (direction_left) {
@@ -164,7 +172,7 @@ void increment_tick_left() {
 void increment_tick_right() {
    
   // Read the value for the encoder for the right wheel
-  bool direction_right = goombot.wheel_right.get_speed() > 0 ? true : false;
+  bool direction_right = goombot.wheel_right.get_speed_avg_calibrated(1) > 0 ? true : false;
    
   if (direction_right) {
      
@@ -172,15 +180,15 @@ void increment_tick_right() {
       right_ticks.data = encoder_minimum;
     }
     else {
-      right_ticks.data++;  
-    }    
+      right_ticks.data++; 
+    }
   }
   else {
     if (right_ticks.data == encoder_minimum) {
       right_ticks.data = encoder_maximum;
     }
     else {
-      right_ticks.data--;  
+      right_ticks.data--;
     }   
   }
 }
