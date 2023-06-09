@@ -14,81 +14,61 @@
 #define CW true           // Clockwise direction
 #define CCW false         // Counter-clockwise direction
 
+#define ANALOG_OUTPUT_MIN 0 // V
+#define ANALOG_OUTPUT_MAX 4.f // V
+#define RPM_OFFSET 828;
+
+// Arduino specific configuration
+#define MCU_VOLTAGE 5 // V (arduino uses 5V)
+#define ADC_FULL_SCALE 1023.0f // (arduino has 10 bits ADCs)
+
 
 class MotorController {
+  
   public:
 
     MotorController(uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
-                    uint8_t analog_pin_) : 
-      reduction_ratio(DEF_RED_RATIO), 
-      enable_pin(enable_pin_), 
-      direction_pin(direction_pin_), 
-      output_pin(output_pin_),
-      analog_pin(analog_pin_),
-      rpm_min(RPM_MIN),
-      rpm_max(RPM_MAX),
-      pwm_min(PWM_MIN),
-      pwm_max(PWM_MAX)
-      {
-        set_rpm(0);
-        enable_controller();
-      }
+                    uint8_t analog_pin_,
+                    uint8_t commutation_pin_);
 
       
-    MotorController(uint16_t reduction_ratio_, 
-                    uint8_t enable_pin_, 
-                    uint8_t direction_pin_, 
-                    uint8_t output_pin_
-                    uint8_t analog_pin_) :
-      reduction_ratio(reduction_ratio_), 
-      enable_pin(enable_pin_), 
-      direction_pin(direction_pin_), 
-      output_pin(output_pin_),
-      analog_pin(analog_pin_),
-      rpm_min(RPM_MIN),
-      rpm_max(RPM_MAX),
-      pwm_min(PWM_MIN),
-      pwm_max(PWM_MAX)
-      {
-        set_rpm(0);
-        enable_controller();
-      }
-
-
     MotorController(uint16_t reduction_ratio_, 
                     uint8_t enable_pin_, 
                     uint8_t direction_pin_, 
                     uint8_t output_pin_,
                     uint8_t analog_pin_,
+                    uint8_t commutation_pin_);
+
+    MotorController(uint16_t reduction_ratio_, 
+                    uint8_t enable_pin_, 
+                    uint8_t direction_pin_,
+                    uint8_t output_pin_,
+                    uint8_t analog_pin_, 
+                    uint8_t commutation_pin_,
                     uint16_t rpm_min_,
                     uint16_t rpm_max_,
                     uint8_t pwm_min_,
-                    uint8_t pwm_max_) :
-      reduction_ratio(reduction_ratio_), 
-      enable_pin(enable_pin_), 
-      direction_pin(direction_pin_), 
-      output_pin(output_pin_),
-      analog_pin(analog_pin_),
-      rpm_min(rpm_min_),
-      rpm_max(rpm_max_),
-      pwm_min(pwm_min_),
-      pwm_max(pwm_max_)
-      {
-        set_rpm(0);
-        enable_controller();
-      }
-      
+                    uint8_t pwm_max_,
+                    float analog_output_min_,
+                    float analog_output_max_);
+                    
     ~MotorController();
     
     void set_rpm_shaft(float rpm);
+    float get_rpm_shaft();
+    void reset_controller();
+//    void calibrate_offset();
+//    int get_ticks();
     
   private:
     uint16_t reduction_ratio;
     uint8_t enable_pin;
     uint8_t direction_pin;
     uint8_t output_pin;
+    uint8_t analog_pin;
+    uint8_t commutation_pin;
 
     uint16_t rpm_min;
     uint16_t rpm_max;
@@ -96,13 +76,22 @@ class MotorController {
     uint8_t pwm_min;
     uint8_t pwm_max;
 
-    bool enabled;
+    float analog_output_min;
+    float analog_output_max;
+
+//    int rpm_offset;
+//    volatile int tick;
+    
+    bool direction;
 
     void enable_controller();
     void disable_controller();
-    void set_direction(bool direction);
-    void set_rpm(uint16_t rpm, bool direction=CW);
-    float get_rpm(int analog_pin, uint16_t rpm_min, uint16_t rpm_max, float Vmin, float Vmax);
+    void set_direction(bool direction_);
+    void set_rpm(uint16_t rpm, bool direction_=CW);
+    
+    int get_rpm();
+//    int get_rpm_calibrated();
+//    void increment_tick();
 };
 
 
