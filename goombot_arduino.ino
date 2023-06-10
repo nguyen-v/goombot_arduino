@@ -1,6 +1,5 @@
 
- 
-// ROS includes
+ // ROS includes
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
@@ -11,6 +10,24 @@
 #include "MotorController.h"
 #include "Wheel.h"
 #include "Goombot.h"
+#include <ServoEasing.hpp>
+
+
+#define RIGHTSERVO_PIN 8
+#define LEFTSERVO_PIN 9
+
+#define SERVO_SPEED 100
+
+#define LEFT_UP 0
+#define LEFT_IDLE 115
+#define LEFT_DOWN 120
+
+#define RIGHT_UP 120
+#define RIGHT_IDLE 5
+#define RIGHT_DOWN 0
+
+
+
 
 
 // Create ROS node handle
@@ -19,6 +36,9 @@ ros::NodeHandle nh;
 // Create a motor controller instance
 MotorController left_motor(40, 42, 3, A0, 18);
 MotorController right_motor(35, 33, 2, A15, 19);
+
+ServoEasing liftingServo_right;
+ServoEasing liftingServo_left;
 
 // Create wheel instances
 Wheel left_wheel(left_motor);
@@ -42,11 +62,14 @@ void set_velocity_callback(const geometry_msgs::Twist& cmd_vel) {
 }
 
 void lift_command_callback(const std_msgs::String& lift_command) {
-  if (lift_command.data == "lift_up") {
-    Goombot.lift_up();
+  if (strcmp(lift_command.data, "LIFT_UP") == 0) {
+    lift_up();
   }
-  else if (lift_command.data == "lift_down") {
-    Goombot.lift_down();
+  else if (strcmp(lift_command.data, "LIFT_DOWN") == 0) {
+    lift_down();
+  }
+  else if (strcmp(lift_command.data, "LIFT_IDLE") == 0) {
+    lift_idle();
   }
 }
 
@@ -97,6 +120,11 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt(18), increment_tick_left, RISING);
   attachInterrupt(digitalPinToInterrupt(19), increment_tick_right, RISING);
+  liftingServo_right.attach(RIGHTSERVO_PIN);  
+  liftingServo_left.attach(LEFTSERVO_PIN);  
+
+  liftingServo_right.setSpeed(SERVO_SPEED);  
+  liftingServo_left.setSpeed(SERVO_SPEED);  
   
   // reset controllers
   goombot.wheel_left.controller.reset_controller();
@@ -150,6 +178,10 @@ void loop() {
     left_wheel_vel_pub.publish(&left_wheel_vel);
     right_wheel_vel_pub.publish(&right_wheel_vel);
     nh.spinOnce();
+  }
+   if (liftingServo_right.isMoving() || liftingServo_left.isMoving()) {
+    liftingServo_right.update();
+    liftingServo_left.update();
   }
   
   delay(1);
@@ -205,3 +237,23 @@ void increment_tick_right() {
     }   
   }
 }
+
+void lift_up(){
+  liftingServo_right.setEasingType(EASE_CUBIC_IN);
+  liftingServo_right.startEaseTo(RIGHT_UP);
+  liftingServo_left.setEasingType(EASE_CUBIC_IN);
+  liftingServo_left.startEaseTo(LEFT_UP);
+ }
+void lift_down() {
+  liftingServo_right.setEasingType(EASE_CUBIC_IN_OUT);
+  liftingServo_right.startEaseTo(RIGHT_DOWN);
+  liftingServo_left.setEasingType(EASE_CUBIC_IN_OUT);
+  liftingServo_left.startEaseTo(LEFT_DOWN);
+ }
+ 
+ void lift_idle() {
+  liftingServo_right.setEasingType(EASE_CUBIC_IN_OUT);
+  liftingServo_right.startEaseTo(RIGHT_IDLE);
+  liftingServo_left.setEasingType(EASE_CUBIC_IN_OUT);
+  liftingServo_left.startEaseTo(LEFT_IDLE);
+ }
